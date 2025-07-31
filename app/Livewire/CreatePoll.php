@@ -3,10 +3,12 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+
 use App\Models\Poll;
 
 class CreatePoll extends Component
 {
+
     public $title;
     public $options = ['First'];
 
@@ -30,7 +32,7 @@ class CreatePoll extends Component
         $this->options[] = '';
     }
 
-     public function removeOption($index)
+    public function removeOption($index)
     {
         unset($this->options[$index]);
         $this->options = array_values($this->options);
@@ -45,14 +47,19 @@ class CreatePoll extends Component
     {
         $this->validate();
 
-        Poll::create([
+        $poll = Poll::create([
             'title' => $this->title
-       ])->options()->createMany(
-        collect($this->options)
-            ->map(fn($option) => ['name' => $option])
-            ->all()
-    );
+        ]);
+
+        $poll->options()->createMany(
+            collect($this->options)
+                ->map(fn($option) => ['name' => $option])
+                ->all()
+        );
 
         $this->reset(['title', 'options']);
+
+        // Fixed emit call
+        $this->dispatch('pollCreated');
     }
 }
